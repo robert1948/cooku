@@ -8,6 +8,25 @@ from django.http import HttpResponseRedirect
 
 from django.views.decorators.csrf import csrf_protect
 
+def delete_venue(request, venue_id):
+    venue = Venue.objects.get(pk=venue_id)
+    venue.delete()
+    return redirect('list-venues')
+
+def delete_event(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    event.delete()
+    return redirect('list-events')
+
+def update_event(request, event_id):
+    event = Event.objects.get(pk=event_id)
+    form = EventForm(request.POST or None, instance=event)
+    if form.is_valid():
+        form.save()
+        return redirect('list-events')
+
+    return render(request, 'events/update_event.html', {'event': event, 'form': form})
+
 def add_event(request):
     submitted = False
     if request.method == 'POST':
@@ -44,7 +63,7 @@ def search_venues(request):
 # Duplicate function definition removed
 
 def all_events(request):
-    event_list = Event.objects.all()
+    event_list = Event.objects.all().order_by('name')
     return render(request, 'events/event_list.html', {'event_list': event_list})
 
 def blog(request):
